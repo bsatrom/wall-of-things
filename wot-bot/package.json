@@ -1,0 +1,29 @@
+{
+  "name": "wot-bot",
+  "version": "0.0.1",
+  "description": "A Twitch Chatbot for controlling my Wall of Things",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsatrom/wall-of-things.git"
+  },
+  "keywords": [
+    "twitch",
+    "bot",
+    "node"
+  ],
+  "author": "Brandon Satrom <brandon@particle.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bsatrom/wall-of-things/issues"
+  },
+  "homepage": "https://github.com/bsatrom/wall-of-things#readme",
+  "dependencies": {
+    "dotenv": "^7.0.0",
+    "particle-api-js": "^7.4.0",
+    "tmi.js": "^1.4.2"
+  }
+}

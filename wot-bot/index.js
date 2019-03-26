@@ -22,26 +22,18 @@ client.on('connected', onConnectedHandler);
 
 client.connect();
 
-// Called every time a message comes in
-async function onMessageHandler(target, context, msg, self) {
-  if (self) { return; } // Ignore messages from the bot
-
-  // Remove whitespace from chat message
-  const commandName = msg.trim();
-
-  if (commandName === '!online') {
+const commands = {
+  '!online': async (target) => {
     try {
       // Query device cloud for the # of devices Brandon has online
       const numOfDevices = await getOnlineDevices();
 
       client.say(target, `Brandon has ${numOfDevices} device online.`);
     } catch (err) {
-      client.say(target, 'Brandon wrote crap code.');
-      console.log(err);
+      handleError(err);
     }
-  }
-
-  if (commandName === '!chase') {
+  },
+  '!chase': async (target) => {
     try {
       let ret;
 
@@ -62,24 +54,35 @@ async function onMessageHandler(target, context, msg, self) {
 
       client.say(target, `The lights are chasing each other!`);
     } catch (err) {
-      client.say(target, 'Brandon wrote crap code.');
-      console.log(err);
+      handleError(err);
     }
-  }
-
-  if (commandName === '!chase-color') { }
-
-  if (commandName === '!token') {
-
-  }
-
-  // If the command is known, let's execute it
-  if (commandName === '!dice') {
+  },
+  '!dice': (target) => {
     const num = rollDice();
     client.say(target, `You rolled a ${num}`);
-    console.log(`* Executed ${commandName} command`);
+  },
+  '!chase-stop': (target) => { },
+  '!chase-color': (target) => { },
+  '!token': (target) => {
+    client.say(target, 'LUL brando92Cyanpanda brando92Cyanpanda LUL');
+  },
+  'default': (target, commandName) => {
+    console.log(`command not found: ${commandName}`);
+  }
+}
+
+// Called every time a message comes in
+async function onMessageHandler(target, context, msg, self) {
+  if (self) { return; } // Ignore messages from the bot
+
+  // Remove whitespace from chat message
+  const commandName = msg.trim();
+
+  // Determine if this command is valid and pass to the commands fn object
+  if (commandName.startsWith('!') && commands[commandName]) {
+    return commands[commandName](target);
   } else {
-    console.log(`* Unknown command ${commandName}`);
+    return commands['default'](target, commandName);
   }
 }
 
@@ -97,8 +100,12 @@ function rollDice() {
   return Math.floor(Math.random() * sides) + 1;
 }
 
-
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
+}
+
+function handleError(err) {
+  client.say(target, 'Brandon wrote crap code.');
+  console.log(err);
 }

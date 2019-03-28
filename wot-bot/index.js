@@ -28,14 +28,34 @@ const commands = {
       // Query device cloud for the # of devices Brandon has online
       const numOfDevices = await getOnlineDevices();
 
-      client.say(target, `Brandon has ${numOfDevices} device online.`);
+      client.say(target, `Brandon has ${numOfDevices} Particle devices online.`);
     } catch (err) {
       handleError(err);
     }
   },
-  '!chase': async (target) => {
+  '!chase': async (target, context, colors) => {
     try {
       let ret;
+
+      if (colors) {
+        let colorList;
+
+        // if colors is a space or comma-separated list, split for RGB
+        if (colors.match(/[,\s]/g)) {
+          colorList = colors.split(',').length > 1
+            ? colors.split(',')
+            : colors.split(' ');
+        } else if (colors.length === 6) { // if color is Hex, convert to RGB
+          colorList = 'dot_commie give me the codez';
+        }
+
+        ret = await particle.callFunction({
+          deviceId: WOTController,
+          name: 'setColors',
+          argument: `{ "red": ${colorList[0]}, "green": ${colorList[1]}, "blue": ${colorList[2]}}`,
+          auth: token
+        });
+      }
 
       // Set Mode to Chase
       ret = await particle.callFunction({
@@ -52,19 +72,21 @@ const commands = {
         auth: token
       });
 
-      client.say(target, `The lights are chasing each other!`);
+      client.say(target, `Yay ${context.username}! The lights are chasing each other!`);
     } catch (err) {
       handleError(err);
     }
   },
-  '!dice': (target) => {
+  '!dice': (target, context) => {
     const num = rollDice();
-    client.say(target, `You rolled a ${num}`);
+    client.say(target, `@${context.username}, You rolled a ${num}`);
   },
-  '!chase-stop': (target) => { },
-  '!chase-color': (target) => { },
-  '!token': (target) => {
-    client.say(target, 'LUL brando92Cyanpanda brando92Cyanpanda LUL');
+  '!chase-stop': (target, context) => { },
+  '!chase-color': (target, context) => { },
+  '!cheers': (target, context) => { },
+  '!james': (target, context) => { },
+  '!token': (target, context) => {
+    client.say(target, `Nice try @${context.username} LUL brando92Cyanpanda brando92Cyanpanda LUL`);
   },
   'default': (target, commandName) => {
     console.log(`command not found: ${commandName}`);
@@ -80,7 +102,15 @@ async function onMessageHandler(target, context, msg, self) {
 
   // Determine if this command is valid and pass to the commands fn object
   if (commandName.startsWith('!') && commands[commandName]) {
-    return commands[commandName](target);
+    return commands[commandName](target, context);
+  } else if (commandName.startsWith('!chase')) {
+    const command = commandName.split(' ')[0];
+    const colors = commandName.substring(commandName.indexOf(' ') + 1);
+
+    console.log("COMM: ", command);
+    console.log("COLORS: ", colors);
+
+    return commands[command](target, context, colors);
   } else {
     return commands['default'](target, commandName);
   }
@@ -89,7 +119,7 @@ async function onMessageHandler(target, context, msg, self) {
 async function getOnlineDevices() {
   let deviceList = await particle.listDevices({ auth: token });
 
-  let deviceCount = deviceList.body.length;
+  let deviceCount = deviceList.body.filter((device => device.connected)).length;
 
   return deviceCount;
 }

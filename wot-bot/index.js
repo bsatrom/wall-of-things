@@ -91,7 +91,23 @@ const commands = {
       handleError(err);
     }
   },
-  '!rainbow': (target, context) => { },
+  '!rainbow': async (target, context) => {
+    try {
+      let ret;
+
+      // Set Mode to Random to turn off lights
+      ret = await particle.callFunction({
+        deviceId: WOTController,
+        name: 'setMode',
+        argument: '4',
+        auth: token
+      });
+
+      client.say(target, `Yay ${context.username}! You triggered rainbow mode!`);
+    } catch (err) {
+      handleError(err);
+    }
+  },
   '!cheers': (target, context) => { },
   '!james': (target, context) => { },
   '!token': (target, context) => {

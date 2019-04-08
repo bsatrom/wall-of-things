@@ -37,27 +37,7 @@ const commands = {
     try {
       let ret;
 
-      if (colors) {
-        let colorList;
-
-        // if colors is a space or comma-separated list, split for RGB
-        if (colors.length === 7) { // if color is Hex, convert to RGB
-          colorList = hexToRgb(colors);
-
-          if (!colors) return null;
-        } else if (colors.match(/[,\s]/g)) {
-          colorList = colors.split(',').length > 1
-            ? colors.split(',')
-            : colors.split(' ');
-        }
-
-        ret = await particle.callFunction({
-          deviceId: WOTController,
-          name: 'setColors',
-          argument: `{ "red": ${colorList[0]}, "green": ${colorList[1]}, "blue": ${colorList[2]}}`,
-          auth: token
-        });
-      }
+      ret = await setChaseColors(colors);
 
       // Set Mode to Chase
       ret = await particle.callFunction({
@@ -84,7 +64,17 @@ const commands = {
     client.say(target, `@${context.username}, You rolled a ${num}`);
   },
   '!chase-stop': (target, context) => { },
-  '!chase-color': (target, context) => { },
+  '!chase-color': async (target, context, colors) => {
+    try {
+      let ret;
+
+      ret = await setChaseColors(colors);
+
+      client.say(target, `Yay ${context.username}! You changed the light color to ${colors}`);
+    } catch (err) {
+      handleError(err);
+    }
+  },
   '!cheers': (target, context) => { },
   '!james': (target, context) => { },
   '!token': (target, context) => {
@@ -140,6 +130,34 @@ function onConnectedHandler(addr, port) {
 function handleError(err) {
   client.say(target, 'Brandon wrote crap code.');
   console.log(err);
+}
+
+async function setChaseColors(colors) {
+  let ret;
+
+  if (colors) {
+    let colorList;
+
+    // if colors is a space or comma-separated list, split for RGB
+    if (colors.startsWith('#')) { // if color is Hex, convert to RGB
+      colorList = hexToRgb(colors);
+
+      if (!colors) return null;
+    } else if (colors.match(/[,\s]/g)) {
+      colorList = colors.split(',').length > 1
+        ? colors.split(',')
+        : colors.split(' ');
+    }
+
+    return await particle.callFunction({
+      deviceId: WOTController,
+      name: 'setColors',
+      argument: `{ "red": ${colorList[0]}, "green": ${colorList[1]}, "blue": ${colorList[2]}}`,
+      auth: token
+    });
+  }
+
+  return null;
 }
 
 function hexToRgb(hex) {

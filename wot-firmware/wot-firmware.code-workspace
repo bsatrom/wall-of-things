@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "path": "wot-neopixel-strips"
+    },
+    {
+      "path": "wot-controller"
+    },
+    {
+      "path": "wot-marquee"
+    }
+  ],
+  "settings": {
+    "cortex-debug.openocdPath": "/Users/bsatrom/.particle/toolchains/openocd/0.10.0-particle.1/bin/openocd",
+    "files.associations": {
+      "*.h": "cpp",
+      "iterator": "cpp",
+      "string": "cpp",
+      "string_view": "cpp"
+    }
+  }
+}

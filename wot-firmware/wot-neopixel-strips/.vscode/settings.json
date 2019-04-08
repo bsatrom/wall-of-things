@@ -1,7 +1,6 @@
 {
-    "extensions.ignoreRecommendations": true,
-    "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
-    "files.associations": {
-        "*.ino": "cpp"
-    }
+  "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
+  "particle.targetDevice": "wot-strip-4",
+  "particle.targetPlatform": "xenon",
+  "particle.firmwareVersion": "0.9.0"
 }

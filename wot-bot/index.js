@@ -41,12 +41,14 @@ const commands = {
         let colorList;
 
         // if colors is a space or comma-separated list, split for RGB
-        if (colors.match(/[,\s]/g)) {
+        if (colors.length === 7) { // if color is Hex, convert to RGB
+          colorList = hexToRgb(colors);
+
+          if (!colors) return null;
+        } else if (colors.match(/[,\s]/g)) {
           colorList = colors.split(',').length > 1
             ? colors.split(',')
             : colors.split(' ');
-        } else if (colors.length === 6) { // if color is Hex, convert to RGB
-          colorList = 'dot_commie give me the codez';
         }
 
         ret = await particle.callFunction({
@@ -89,7 +91,7 @@ const commands = {
     client.say(target, `Nice try @${context.username} LUL brando92Cyanpanda brando92Cyanpanda LUL`);
   },
   'default': (target, commandName) => {
-    console.log(`command not found: ${commandName}`);
+    // console.log(`command not found: ${commandName}`);
   }
 }
 
@@ -138,4 +140,14 @@ function onConnectedHandler(addr, port) {
 function handleError(err) {
   client.say(target, 'Brandon wrote crap code.');
   console.log(err);
+}
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
+  return result ? [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16)
+  ] : null;
 }

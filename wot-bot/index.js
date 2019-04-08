@@ -63,7 +63,23 @@ const commands = {
     const num = rollDice();
     client.say(target, `@${context.username}, You rolled a ${num}`);
   },
-  '!chase-stop': (target, context) => { },
+  '!stop': async (target, context) => {
+    try {
+      let ret;
+
+      // Set Mode to Random to turn off lights
+      ret = await particle.callFunction({
+        deviceId: WOTController,
+        name: 'setMode',
+        argument: '0',
+        auth: token
+      });
+
+      client.say(target, `lights are off!`);
+    } catch (err) {
+      handleError(err);
+    }
+  },
   '!chase-color': async (target, context, colors) => {
     try {
       let ret;
@@ -75,6 +91,7 @@ const commands = {
       handleError(err);
     }
   },
+  '!rainbow': (target, context) => { },
   '!cheers': (target, context) => { },
   '!james': (target, context) => { },
   '!token': (target, context) => {

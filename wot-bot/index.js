@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const tmi = require('tmi.js');
 const Particle = require('particle-api-js');
+const tinycolor = require('tinycolor2');
 
 const particle = new Particle();
 const token = process.env.PARTICLE_TOKEN;
@@ -173,13 +174,21 @@ async function setChaseColors(colors) {
 
     // if colors is a space or comma-separated list, split for RGB
     if (colors.startsWith('#')) { // if color is Hex, convert to RGB
-      colorList = hexToRgb(colors);
+      const color = tinycolor(colors);
 
-      if (!colors) return null;
+      if (color.isValid()) {
+        colorList = hexToRgb(color.toHexString());
+
+        if (!colorList) return null;
+      } else {
+        return null;
+      }
     } else if (colors.match(/[,\s]/g)) {
       colorList = colors.split(',').length > 1
         ? colors.split(',')
         : colors.split(' ');
+    } else {
+      // Parse named color
     }
 
     return await particle.callFunction({

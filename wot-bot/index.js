@@ -170,11 +170,11 @@ async function setChaseColors(colors) {
   let ret;
 
   if (colors) {
-    let colorList;
+    let colorList, color;
 
     // if colors is a space or comma-separated list, split for RGB
     if (colors.startsWith('#')) { // if color is Hex, convert to RGB
-      const color = tinycolor(colors);
+      color = tinycolor(colors);
 
       if (color.isValid()) {
         colorList = hexToRgb(color.toHexString());
@@ -187,8 +187,18 @@ async function setChaseColors(colors) {
       colorList = colors.split(',').length > 1
         ? colors.split(',')
         : colors.split(' ');
-    } else {
-      // Parse named color
+    } else { // Parse named color
+      color = tinycolor(colors);
+
+      if (color.isValid()) {
+        console.log('HEX: ', color.toHexString());
+
+        colorList = hexToRgb(color.toHexString());
+
+        if (!colorList) return null;
+      } else {
+        return null;
+      }
     }
 
     return await particle.callFunction({

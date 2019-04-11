@@ -92,22 +92,11 @@ const commands = {
       handleError(err);
     }
   },
+  '!breathe': async (target, context) => {
+    await triggerLEDMode(target, context, '6', 'breathe');
+  },
   '!rainbow': async (target, context) => {
-    try {
-      let ret;
-
-      // Set Mode to Random to turn off lights
-      ret = await particle.callFunction({
-        deviceId: WOTController,
-        name: 'setMode',
-        argument: '4',
-        auth: token
-      });
-
-      client.say(target, `Yay ${context.username}! You triggered rainbow mode!`);
-    } catch (err) {
-      handleError(err);
-    }
+    await triggerLEDMode(target, context, '4', 'rainbow');
   },
   '!cheers': (target, context) => { },
   '!james': (target, context) => { },
@@ -220,4 +209,22 @@ function hexToRgb(hex) {
     parseInt(result[2], 16),
     parseInt(result[3], 16)
   ] : null;
+}
+
+async function triggerLEDMode(target, context, mode, name) {
+  try {
+    let ret;
+
+    // Set Mode to Random to turn off lights
+    ret = await particle.callFunction({
+      deviceId: WOTController,
+      name: 'setMode',
+      argument: mode,
+      auth: token
+    });
+
+    client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
+  } catch (err) {
+    handleError(err);
+  }
 }

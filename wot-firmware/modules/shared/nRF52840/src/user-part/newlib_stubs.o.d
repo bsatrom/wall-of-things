@@ -1,4 +1,4 @@
-/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-controller/target//obj/../../../modules/shared/nRF52840/src/user-part/newlib_stubs.o: \
+/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-neopixel-strips/target//obj/../../../modules/shared/nRF52840/src/user-part/newlib_stubs.o: \
  ../../../modules/shared/nRF52840/src/user-part/newlib_stubs.cpp \
  /Users/bsatrom/.particle/toolchains/gcc-arm/5.3.1/arm-none-eabi/include/sys/types.h \
  /Users/bsatrom/.particle/toolchains/gcc-arm/5.3.1/arm-none-eabi/include/_ansi.h \

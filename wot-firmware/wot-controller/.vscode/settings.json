@@ -1,6 +1,6 @@
 {
   "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
-  "particle.targetDevice": "satrom-lte-gateway",
+  "particle.targetDevice": "wot-wifi-controller",
   "particle.firmwareVersion": "0.9.0",
-  "particle.targetPlatform": "boron"
+  "particle.targetPlatform": "argon"
 }

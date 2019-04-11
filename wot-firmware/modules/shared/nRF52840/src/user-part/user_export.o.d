@@ -1,4 +1,4 @@
-/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-controller/target//obj/../../../modules/shared/nRF52840/src/user-part/user_export.o: \
+/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-neopixel-strips/target//obj/../../../modules/shared/nRF52840/src/user-part/user_export.o: \
  ../../../modules/shared/nRF52840/src/user-part/user_export.c \
  ../../../modules/shared/nRF52840/inc/user_part_export.c \
  ../../../modules/shared/nRF52840/inc/module_user_init.h \
@@ -36,7 +36,7 @@
  ../../../third_party/nrf5_sdk/nrf5_sdk/components/toolchain/cmsis/include/core_cmSimd.h \
  ../../../third_party/nrf5_sdk/nrf5_sdk/modules/nrfx/mdk/system_nrf52840.h \
  ../../../hal/inc/pinmap_hal.h ../../../hal/inc/hal_platform.h \
- ../../../hal/src/boron/hal_platform_config.h \
+ ../../../hal/src/xenon/hal_platform_config.h \
  ../../../hal/src/nRF52840/hal_platform_nrf52840_config.h \
  ../../../hal/inc/hal_irq_flag.h \
  ../../../modules/shared/nRF52840/inc/user_dynalib.h
@@ -121,7 +121,7 @@
 
 ../../../hal/inc/hal_platform.h:
 
-../../../hal/src/boron/hal_platform_config.h:
+../../../hal/src/xenon/hal_platform_config.h:
 
 ../../../hal/src/nRF52840/hal_platform_nrf52840_config.h:
 

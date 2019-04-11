@@ -1,4 +1,4 @@
-/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-controller/target//obj/../../../modules/shared/nRF52840/src/user-part/module_info.o: \
+/Users/bsatrom/Development/particle/wall-of-things/wot-firmware/wot-neopixel-strips/target//obj/../../../modules/shared/nRF52840/src/user-part/module_info.o: \
  ../../../modules/shared/nRF52840/src/user-part/module_info.c \
  ../../../dynalib/inc/module_info.inc ../../../dynalib/inc/module_info.h \
  ../../../services/inc/static_assert.h \

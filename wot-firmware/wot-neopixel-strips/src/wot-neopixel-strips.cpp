@@ -9,7 +9,7 @@ JsonParserStatic<2048, 100> jsonParser;
 #define PIXEL_PIN D2
 
 // wot-strip-1 and 3 have 60 lights, 2 and 4 have 30
-#define PIXEL_COUNT 30 // NUM of lights
+#define PIXEL_COUNT 60 // NUM of lights
 
 #define PIXEL_TYPE WS2812B
 #define BRIGHTNESS 150 // 0 - 255
@@ -19,8 +19,8 @@ JsonParserStatic<2048, 100> jsonParser;
 // Pub/Sub strings for each device
 
 // For wot-strip-1
-// #define SUB_STRING "startOne"
-// #define PUB_STRING "startTwo"
+#define SUB_STRING "startOne"
+#define PUB_STRING "startTwo"
 
 // For wot-strip-2
 // #define SUB_STRING "startTwo"
@@ -31,13 +31,13 @@ JsonParserStatic<2048, 100> jsonParser;
 // #define PUB_STRING "startFour"
 
 // For wot-strip-4
-#define SUB_STRING "startFour"
-#define PUB_STRING "startOne"
+// #define SUB_STRING "startFour"
+// #define PUB_STRING "startOne"
 
 // Strip One is also mounted backwards, so it needs to count up, not down
-// #define ITERATE_REVERSE true
+#define ITERATE_REVERSE true
 // Set for strips 2-4
-#define ITERATE_REVERSE false
+// #define ITERATE_REVERSE false
 
 /* OPTIONS 
 * 0 = RANDOM
@@ -46,6 +46,7 @@ JsonParserStatic<2048, 100> jsonParser;
 * 3 = TRELLIS_PIXEL
 * 4 = RAINBOW
 * 5 = CHASE
+* 6 = BREATHE
 */
 int animationMode = 0;
 bool useWheel = false;
@@ -60,8 +61,11 @@ int blueValue = 255;
 
 bool lightUp = false;
 
+// Animation forward delcarations
 void rainbow(uint8_t wait);
 uint16_t Wheel(byte WheelPos);
+void FadeInOut(byte red, byte green, byte blue);
+void setAll(byte red, byte green, byte blue);
 
 void playColorOfSound(const char *data)
 {
@@ -267,7 +271,7 @@ void setup()
 
 void loop()
 {
-  if (animationMode != 4 && animationMode != 5)
+  if (animationMode != 4 && animationMode != 5 && animationMode != 6)
   {
     if (!lightUp)
     {
@@ -277,6 +281,10 @@ void loop()
   else if (animationMode == 4)
   {
     rainbow(20);
+  }
+  else if (animationMode == 6)
+  {
+    FadeInOut(0xff, 0x77, 0x00);
   }
 }
 
@@ -325,4 +333,37 @@ uint16_t Wheel(byte WheelPos)
 
   WheelPos -= 170;
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
+
+void FadeInOut(byte red, byte green, byte blue)
+{
+  float r, g, b;
+
+  for (int k = 0; k < 256; k = k + 1)
+  {
+    r = (k / 256.0) * red;
+    g = (k / 256.0) * green;
+    b = (k / 256.0) * blue;
+    setAll(r, g, b);
+    strip.show();
+  }
+
+  for (int k = 255; k >= 0; k = k - 2)
+  {
+    r = (k / 256.0) * red;
+    g = (k / 256.0) * green;
+    b = (k / 256.0) * blue;
+    setAll(r, g, b);
+    strip.show();
+  }
+}
+
+void setAll(byte red, byte green, byte blue)
+{
+  for (int i = 0; i < PIXEL_COUNT; i++)
+  {
+    strip.setPixelColor(i, strip.Color(red, green, blue));
+  }
+
+  strip.show();
 }

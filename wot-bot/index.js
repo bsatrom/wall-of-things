@@ -31,7 +31,7 @@ const commands = {
 
       client.say(target, `Brandon has ${numOfDevices} Particle devices online.`);
     } catch (err) {
-      handleError(err);
+      handleError(target, err);
     }
   },
   '!chase': async (target, context, colors) => {
@@ -40,24 +40,44 @@ const commands = {
 
       ret = await setChaseColors(colors);
 
-      // Set Mode to Chase
-      ret = await particle.callFunction({
+      if (ret.statusCode !== 200) {
+        throw new Error('Error setting the strip color');
+      }
+
+      const stripMode = await particle.getVariable({
         deviceId: WOTController,
-        name: 'setMode',
-        argument: '5',
+        name: 'stripMode',
         auth: token
       });
 
-      // Call Chase
-      ret = await particle.callFunction({
-        deviceId: WOTController,
-        name: 'chase',
-        auth: token
-      });
+      // If the result value is 5, chase mode is already active
+      // so we don't need to set it again
+      if (stripMode.body.result !== 5) {
+        // Set Mode to Chase
+        ret = await particle.callFunction({
+          deviceId: WOTController,
+          name: 'setMode',
+          argument: '5',
+          auth: token
+        });
 
-      client.say(target, `Yay ${context.username}! The lights are chasing each other!`);
+        // Call Chase
+        ret = await particle.callFunction({
+          deviceId: WOTController,
+          name: 'chase',
+          auth: token
+        });
+
+        if (ret.body.return_value === 1) {
+          client.say(target, `Yay ${context.username}! The lights are chasing each other!`);
+        } else {
+          throw new Error('Got a failure code from the Particle function.')
+        }
+      } else {
+        client.say(target, `Yay ${context.username}! You set the lights to chase in ${colors}!`);
+      }
     } catch (err) {
-      handleError(err);
+      handleError(target, err);
     }
   },
   '!dice': (target, context) => {
@@ -76,20 +96,37 @@ const commands = {
         auth: token
       });
 
-      client.say(target, `lights are off!`);
+      if (ret.body.return_value === 1) {
+        client.say(target, `lights are off!`);
+      } else {
+        throw new Error('Got a failure code from the Particle function.')
+      }
     } catch (err) {
-      handleError(err);
+      handleError(target, err);
     }
   },
   '!chase-color': async (target, context, colors) => {
     try {
-      let ret;
+      const stripMode = await particle.getVariable({
+        deviceId: WOTController,
+        name: 'stripMode',
+        auth: token
+      });
 
-      ret = await setChaseColors(colors);
+      // If the result value is not 5, chase mode isn't active
+      if (stripMode.body.result !== 5) {
+        client.say(target, `Chase mode isn't active. Try running the !chase command with a color.`);
+      } else {
+        const ret = await setChaseColors(colors);
 
-      client.say(target, `Yay ${context.username}! You changed the light color to ${colors}`);
+        if (ret.body.return_value === 1) {
+          client.say(target, `Yay ${context.username}! You changed the light color to ${colors}`);
+        } else {
+          throw new Error('Got a failure code from the Particle function.')
+        }
+      }
     } catch (err) {
-      handleError(err);
+      handleError(target, err);
     }
   },
   '!breathe': async (target, context) => {
@@ -150,8 +187,8 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-function handleError(err) {
-  client.say(target, 'Brandon wrote crap code.');
+function handleError(target, err) {
+  client.say(target, 'Something went wrong! Probably not your fault, but it could be...');
   console.log(err);
 }
 
@@ -223,7 +260,11 @@ async function triggerLEDMode(target, context, mode, name) {
       auth: token
     });
 
-    client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
+    if (ret.body.return_value === 1) {
+      client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
+    } else {
+      throw new Error('Got a failure code from the Particle function.')
+    }
   } catch (err) {
     handleError(err);
   }

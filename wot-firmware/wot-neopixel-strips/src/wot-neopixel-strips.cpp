@@ -9,7 +9,7 @@ JsonParserStatic<2048, 100> jsonParser;
 #define PIXEL_PIN D2
 
 // wot-strip-1 and 3 have 60 lights, 2 and 4 have 30
-#define PIXEL_COUNT 60 // NUM of lights
+#define PIXEL_COUNT 30 // NUM of lights
 
 #define PIXEL_TYPE WS2812B
 #define BRIGHTNESS 150 // 0 - 255
@@ -19,12 +19,12 @@ JsonParserStatic<2048, 100> jsonParser;
 // Pub/Sub strings for each device
 
 // For wot-strip-1
-#define SUB_STRING "startOne"
-#define PUB_STRING "startTwo"
+// #define SUB_STRING "startOne"
+// #define PUB_STRING "startTwo"
 
 // For wot-strip-2
-// #define SUB_STRING "startTwo"
-// #define PUB_STRING "startThree"
+#define SUB_STRING "startTwo"
+#define PUB_STRING "startThree"
 
 // For wot-strip-3
 // #define SUB_STRING "startThree"
@@ -35,9 +35,9 @@ JsonParserStatic<2048, 100> jsonParser;
 // #define PUB_STRING "startOne"
 
 // Strip One is also mounted backwards, so it needs to count up, not down
-#define ITERATE_REVERSE true
+// #define ITERATE_REVERSE true
 // Set for strips 2-4
-// #define ITERATE_REVERSE false
+#define ITERATE_REVERSE false
 
 /* OPTIONS 
 * 0 = RANDOM

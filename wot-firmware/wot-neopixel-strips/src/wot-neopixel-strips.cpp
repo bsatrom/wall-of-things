@@ -9,7 +9,7 @@ JsonParserStatic<2048, 100> jsonParser;
 #define PIXEL_PIN D2
 
 // wot-strip-1 and 3 have 60 lights, 2 and 4 have 30
-#define PIXEL_COUNT 60 // NUM of lights
+#define PIXEL_COUNT 30 // NUM of lights
 
 #define PIXEL_TYPE WS2812B
 #define BRIGHTNESS 150 // 0 - 255
@@ -19,12 +19,12 @@ JsonParserStatic<2048, 100> jsonParser;
 // Pub/Sub strings for each device
 
 // For wot-strip-1
-#define SUB_STRING "startOne"
-#define PUB_STRING "startTwo"
+// #define SUB_STRING "startOne"
+// #define PUB_STRING "startTwo"
 
 // For wot-strip-2
-// #define SUB_STRING "startTwo"
-// #define PUB_STRING "startThree"
+#define SUB_STRING "startTwo"
+#define PUB_STRING "startThree"
 
 // For wot-strip-3
 // #define SUB_STRING "startThree"
@@ -35,9 +35,9 @@ JsonParserStatic<2048, 100> jsonParser;
 // #define PUB_STRING "startOne"
 
 // Strip One is also mounted backwards, so it needs to count up, not down
-#define ITERATE_REVERSE true
+// #define ITERATE_REVERSE true
 // Set for strips 2-4
-// #define ITERATE_REVERSE false
+#define ITERATE_REVERSE false
 
 /* OPTIONS 
 * 0 = RANDOM
@@ -47,6 +47,7 @@ JsonParserStatic<2048, 100> jsonParser;
 * 4 = RAINBOW
 * 5 = CHASE
 * 6 = BREATHE
+* 7 = FIRE 
 */
 int animationMode = 0;
 bool useWheel = false;
@@ -66,6 +67,8 @@ void rainbow(uint8_t wait);
 uint16_t Wheel(byte WheelPos);
 void FadeInOut(byte red, byte green, byte blue);
 void setAll(byte red, byte green, byte blue);
+void Fire(int Cooling, int Sparking, int SpeedDelay);
+void setPixelHeatColor(int Pixel, byte temperature);
 
 void playColorOfSound(const char *data)
 {
@@ -271,7 +274,7 @@ void setup()
 
 void loop()
 {
-  if (animationMode != 4 && animationMode != 5 && animationMode != 6)
+  if (animationMode != 4 && animationMode != 5 && animationMode != 6 && animationMode != 7)
   {
     if (!lightUp)
     {
@@ -285,6 +288,10 @@ void loop()
   else if (animationMode == 6)
   {
     FadeInOut(0xff, 0x77, 0x00);
+  }
+  else if (animationMode == 7)
+  {
+    Fire(55, 120, 15);
   }
 }
 
@@ -370,4 +377,72 @@ void setAll(byte red, byte green, byte blue)
   }
 
   strip.show();
+}
+
+void Fire(int Cooling, int Sparking, int SpeedDelay)
+{
+  static byte heat[PIXEL_COUNT];
+  int cooldown;
+
+  // Step 1.  Cool down every cell a little
+  for (int i = 0; i < PIXEL_COUNT; i++)
+  {
+    cooldown = random(0, ((Cooling * 10) / PIXEL_COUNT) + 2);
+
+    if (cooldown > heat[i])
+    {
+      heat[i] = 0;
+    }
+    else
+    {
+      heat[i] = heat[i] - cooldown;
+    }
+  }
+
+  // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+  for (int k = PIXEL_COUNT - 1; k >= 2; k--)
+  {
+    heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+  }
+
+  // Step 3.  Randomly ignite new 'sparks' near the bottom
+  if (random(255) < Sparking)
+  {
+    int y = random(7);
+    heat[y] = heat[y] + random(160, 255);
+    //heat[y] = random(160,255);
+  }
+
+  // Step 4.  Convert heat to LED colors
+  for (int j = 0; j < PIXEL_COUNT; j++)
+  {
+    setPixelHeatColor(j, heat[j]);
+  }
+
+  strip.show();
+  delay(SpeedDelay);
+}
+
+void setPixelHeatColor(int Pixel, byte temperature)
+{
+  // Scale 'heat' down from 0-255 to 0-191
+  byte t192 = round((temperature / 255.0) * 191);
+
+  // calculate ramp up from
+  byte heatramp = t192 & 0x3F; // 0..63
+  heatramp <<= 2;              // scale up to 0..252
+
+  // figure out which third of the spectrum we're in:
+  if (t192 > 0x80)
+  { // hottest
+    strip.setPixelColor(Pixel, 255, 255, heatramp);
+  }
+  else if (t192 > 0x40)
+  { // middle
+    strip.setPixelColor(Pixel, 255, heatramp, 0);
+  }
+  else
+  { // coolest
+    strip.setPixelColor(Pixel, heatramp, 0, 0);
+  }
 }

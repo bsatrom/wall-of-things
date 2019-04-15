@@ -42,6 +42,8 @@ const commands = {
 
       if (!ret) {
         client.say(target, 'Invalid color! Try passing a color value by name, hex or rgb list.');
+
+        return false;
       }
 
       const stripMode = await particle.getVariable({

@@ -1,6 +1,6 @@
 {
   "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
-  "particle.targetDevice": "wot-strip-2",
+  "particle.targetDevice": "wot-strip-1",
   "particle.targetPlatform": "xenon",
   "particle.firmwareVersion": "0.9.0"
 }

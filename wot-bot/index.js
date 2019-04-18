@@ -8,6 +8,8 @@ const particle = new Particle();
 const token = process.env.PARTICLE_TOKEN;
 const WOTController = process.env.WOT_CONTROLLER_ID;
 
+let ledStripMode = 0;
+
 const opts = {
   identity: {
     username: 'cyanpandabot',
@@ -46,15 +48,9 @@ const commands = {
         return false;
       }
 
-      const stripMode = await particle.getVariable({
-        deviceId: WOTController,
-        name: 'stripMode',
-        auth: token
-      });
-
       // If the result value is 5, chase mode is already active
       // so we don't need to set it again
-      if (stripMode.body.result !== 5) {
+      if (ledStripMode !== 5) {
         // Set Mode to Chase
         ret = await particle.callFunction({
           deviceId: WOTController,
@@ -62,6 +58,8 @@ const commands = {
           argument: '5',
           auth: token
         });
+
+        ledStripMode = 5;
 
         // Call Chase
         ret = await particle.callFunction({
@@ -98,6 +96,8 @@ const commands = {
         auth: token
       });
 
+      ledStripMode = 0;
+
       if (ret.body.return_value === 1) {
         client.say(target, `lights are off!`);
       } else {
@@ -109,14 +109,8 @@ const commands = {
   },
   '!chase-color': async (target, context, colors) => {
     try {
-      const stripMode = await particle.getVariable({
-        deviceId: WOTController,
-        name: 'stripMode',
-        auth: token
-      });
-
       // If the result value is not 5, chase mode isn't active
-      if (stripMode.body.result !== 5) {
+      if (ledStripMode !== 5) {
         client.say(target, `Chase mode isn't active. Try running the !chase command with a color.`);
       } else {
         const ret = await setChaseColors(colors);
@@ -145,6 +139,17 @@ const commands = {
   'default': (target, commandName) => {
     // console.log(`command not found: ${commandName}`);
   }
+}
+
+async function checkStripMode() {
+  const stripMode = await particle.getVariable({
+    deviceId: WOTController,
+    name: 'stripMode',
+    auth: token
+  });
+
+  // Set the global strip variable
+  ledStripMode = stripMode.body.result;
 }
 
 // Called every time a message comes in
@@ -185,8 +190,12 @@ function rollDice() {
 }
 
 // Called every time the bot connects to Twitch chat
-function onConnectedHandler(addr, port) {
+async function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
+
+  await checkStripMode();
+
+  console.log(`Current LED Strip mode: ${ledStripMode}`);
 }
 
 function handleError(target, err) {
@@ -212,6 +221,7 @@ async function setChaseColors(colors) {
         return null;
       }
     } else if (colors.match(/[,\s]/g)) {
+      // Validate inputs as values between 0-255
       colorList = colors.split(',').length > 1
         ? colors.split(',')
         : colors.split(' ');
@@ -261,6 +271,8 @@ async function triggerLEDMode(target, context, mode, name) {
       argument: mode,
       auth: token
     });
+
+    ledStripMode = mode;
 
     if (ret.body.return_value === 1) {
       client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);

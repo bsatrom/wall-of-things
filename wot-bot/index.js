@@ -23,6 +23,9 @@ const client = new tmi.client(opts);
 client.on('message', onMessageHandler);
 client.on('connected', onConnectedHandler);
 
+// Subscribe to events for bot interaction
+client.on("cheer", onCheerHandler);
+
 client.connect();
 
 const commands = {
@@ -203,6 +206,20 @@ function handleError(target, err) {
   console.log(err);
 }
 
+async function onCheerHandler(target, context, message) {
+  console.log(`Received a cheer of ${context.bits} from ${context.username}!`);
+
+  // Trigger fire mode for 10 sec
+  await triggerLEDMode(target, context, '7', null);
+  setTimeout(async () => {
+    console.log('Reverting to previous mode...');
+
+    await triggerLEDMode(target, context, ledStripMode, null);
+  }, 10000);
+
+  client.say(target, `Thanks for the cheer of ${context.bits}, @${context.username}! brando92Cyanpanda brando92Cyanpanda brando92Cyanpanda`);
+}
+
 async function setChaseColors(colors) {
   let ret;
 
@@ -275,7 +292,7 @@ async function triggerLEDMode(target, context, mode, name) {
     ledStripMode = mode;
 
     if (ret.body.return_value === 1) {
-      client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
+      if (name) client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
     } else {
       throw new Error('Got a failure code from the Particle function.')
     }

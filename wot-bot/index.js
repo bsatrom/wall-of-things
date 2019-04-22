@@ -25,6 +25,9 @@ client.on('connected', onConnectedHandler);
 
 // Subscribe to events for bot interaction
 client.on("cheer", onCheerHandler);
+client.on("hosted", onHostedHandler);
+client.on("subscription", onSubHandler);
+client.on("resub", onResubHandler);
 
 client.connect();
 
@@ -209,15 +212,46 @@ function handleError(target, err) {
 async function onCheerHandler(target, context, message) {
   console.log(`Received a cheer of ${context.bits} from ${context.username}!`);
 
+  await triggerFireMode();
+
+  client.say(target, `Thanks for the cheer of ${context.bits}, @${context.username}! brando92Cyanpanda brando92Cyanpanda brando92Cyanpanda`);
+}
+
+async function onHostedHandler(target, username, viewers, autohost) {
+  if (!autohost) {
+    console.log(`Received a host from ${username} 1with ${viewers} viewer${viewers > 1 ? "s" : ""}`);
+
+    await triggerFireMode();
+
+    client.say(target, `${username} is hosting with ${viewers} viewer${viewers > 1 ? "s" : ""}!`);
+  }
+}
+
+async function onSubHandler(target, username, method, message, userstate) {
+  console.log(`Received a sub from ${username} using ${method}. Message: ${message}`);
+
+  await triggerFireMode();
+
+  client.say(target, `${username} just subscribed with ${method}. brando92Cyanpanda FIRE brando92Cyanpanda. "${message}"`);
+}
+
+async function onResubHandler(target, username, months, message, userstate, method) {
+  console.log(`Received a re-sub from ${username} for ${months} using ${method}. Message: ${message}`);
+
+  await triggerFireMode();
+
+  client.say(target, `${username} just re-subscribed for ${months} month${months > 1 ? "s" : ""} with ${method}! brando92Cyanpanda FIRE brando92Cyanpanda. "${message}"`);
+}
+
+async function triggerFireMode() {
   // Trigger fire mode for 10 sec
   await triggerLEDMode(target, context, '7', null);
+
   setTimeout(async () => {
     console.log('Reverting to previous mode...');
 
     await triggerLEDMode(target, context, ledStripMode, null);
   }, 10000);
-
-  client.say(target, `Thanks for the cheer of ${context.bits}, @${context.username}! brando92Cyanpanda brando92Cyanpanda brando92Cyanpanda`);
 }
 
 async function setChaseColors(colors) {

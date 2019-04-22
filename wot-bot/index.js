@@ -137,6 +137,9 @@ const commands = {
   '!rainbow': async (target, context) => {
     await triggerLEDMode(target, context, '4', 'rainbow');
   },
+  '!bot-help': (target, context) => {
+    client.say(target, "You can use the bot to trigger LED light animations on Brandon's Wall. Try !breathe or !rainbow to switch modes, or !chase with color name or hex code to trigger chase mode. If chase mode is running, use !chase-color to change the color.");
+  },
   '!cheers': (target, context) => { },
   '!james': (target, context) => { },
   '!token': (target, context) => {
@@ -212,7 +215,7 @@ function handleError(target, err) {
 async function onCheerHandler(target, context, message) {
   console.log(`Received a cheer of ${context.bits} from ${context.username}!`);
 
-  await triggerFireMode();
+  await triggerFireMode(target, context);
 
   client.say(target, `Thanks for the cheer of ${context.bits}, @${context.username}! brando92Cyanpanda brando92Cyanpanda brando92Cyanpanda`);
 }
@@ -221,7 +224,7 @@ async function onHostedHandler(target, username, viewers, autohost) {
   if (!autohost) {
     console.log(`Received a host from ${username} 1with ${viewers} viewer${viewers > 1 ? "s" : ""}`);
 
-    await triggerFireMode();
+    await triggerFireMode(target, context);
 
     client.say(target, `${username} is hosting with ${viewers} viewer${viewers > 1 ? "s" : ""}!`);
   }
@@ -230,7 +233,7 @@ async function onHostedHandler(target, username, viewers, autohost) {
 async function onSubHandler(target, username, method, message, userstate) {
   console.log(`Received a sub from ${username} using ${method}. Message: ${message}`);
 
-  await triggerFireMode();
+  await triggerFireMode(target, context);
 
   client.say(target, `${username} just subscribed with ${method}. brando92Cyanpanda FIRE brando92Cyanpanda. "${message}"`);
 }
@@ -238,12 +241,12 @@ async function onSubHandler(target, username, method, message, userstate) {
 async function onResubHandler(target, username, months, message, userstate, method) {
   console.log(`Received a re-sub from ${username} for ${months} using ${method}. Message: ${message}`);
 
-  await triggerFireMode();
+  await triggerFireMode(target, context);
 
   client.say(target, `${username} just re-subscribed for ${months} month${months > 1 ? "s" : ""} with ${method}! brando92Cyanpanda FIRE brando92Cyanpanda. "${message}"`);
 }
 
-async function triggerFireMode() {
+async function triggerFireMode(target, context) {
   // Trigger fire mode for 10 sec
   await triggerLEDMode(target, context, '7', null);
 
@@ -326,7 +329,7 @@ async function triggerLEDMode(target, context, mode, name) {
     ledStripMode = mode;
 
     if (ret.body.return_value === 1) {
-      if (name) client.say(target, `Yay ${context.username}! You triggered ${name} mode!`);
+      if (name) client.say(target, `Yay${context ? " " + context.username : ""}! You triggered ${name} mode!`);
     } else {
       throw new Error('Got a failure code from the Particle function.')
     }
